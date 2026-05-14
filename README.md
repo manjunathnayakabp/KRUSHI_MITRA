@@ -98,6 +98,139 @@ To integrate physical sensors, flash the provided C++ scripts in the `/hardware`
 }
 \`\`\`
 
+To get the **Smart Agriculture Assistant** up and running, you will need to set up the three distinct layers of the architecture: the ESP32 Hardware, the FastAPI Python Backend, and the Next.js Frontend.
+
+Here is the step-by-step developer guide, structured exactly like a professional GitHub `README.md`.
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed on your machine:
+
+* **Python 3.9+** (For the FastAPI backend and Machine Learning)
+* **Node.js (v18+) & npm** (For the Next.js frontend)
+* **Arduino IDE** (For flashing the ESP32 microcontroller)
+* **Tesseract OCR Engine** (Must be installed on your OS level. E.g., `sudo apt install tesseract-ocr` for Linux, or via the `.exe` installer for Windows).
+
+---
+
+### Step 1: Hardware Setup (ESP32 Edge Node)
+
+1. Open the **Arduino IDE**.
+2. Go to **File > Preferences** and add the ESP32 board manager URL.
+3. Install the required libraries via the Library Manager:
+* `DHT sensor library` (for temperature/humidity)
+* `Firebase ESP32 Client` (to push data to your database)
+* `Arduino_JSON`
+
+
+4. Connect your ESP32 to your computer via USB.
+5. Open your `esp32_telemetry.ino` file. Update the Wi-Fi credentials and Firebase API keys at the top of the file:
+```cpp
+#define WIFI_SSID "YOUR_WIFI_NAME"
+#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+#define FIREBASE_HOST "your-project.firebaseio.com"
+#define FIREBASE_AUTH "your_database_secret"
+
+```
+
+
+6. Select your ESP32 board and COM port, then click **Upload**.
+
+---
+
+### Step 2: Backend Setup (FastAPI & Machine Learning)
+
+This layer handles the OCR processing, the Random Forest model, and the database routing.
+
+1. Open your terminal and navigate to the backend folder:
+```bash
+cd krushi-mitra-backend
+
+```
+
+
+2. Create and activate a Python virtual environment:
+```bash
+# On Windows
+python -m venv venv
+.\venv\Scripts\activate
+
+# On Mac/Linux
+python3 -m venv venv
+source venv/bin/activate
+
+```
+
+
+3. Install the required Python dependencies:
+```bash
+pip install fastapi uvicorn opencv-python pytesseract scikit-learn python-dotenv firebase-admin
+
+```
+
+
+4. Create a `.env` file in the root of the backend folder and add your API keys:
+```env
+GEMINI_API_KEY="your_google_gemini_key_here"
+FIREBASE_CREDENTIALS_PATH="./firebase-adminsdk.json"
+
+```
+
+
+5. Start the FastAPI server using Uvicorn:
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+```
+
+
+*(Your backend is now running at `http://localhost:8000`. You can view the API documentation at `http://localhost:8000/docs`).*
+
+---
+
+### Step 3: Frontend Setup (Next.js PWA)
+
+This layer provides the Action-First UI and the Community Hub for the farmers.
+
+1. Open a new terminal window and navigate to your frontend directory:
+```bash
+cd krushi-mitra-frontend
+
+```
+
+
+2. Install the Node modules and dependencies:
+```bash
+npm install
+
+```
+
+
+3. Create a `.env.local` file in the root of the frontend folder to link it to your backend:
+```env
+NEXT_PUBLIC_BACKEND_API_URL="http://localhost:8000"
+
+```
+
+
+4. Start the development server:
+```bash
+npm run dev
+
+```
+
+
+
+---
+
+### Step 4: System Verification
+
+1. Open your browser and go to `http://localhost:3000`. You should see your Next.js dashboard.
+2. Check the **Telemetry Widget** on the screen; if your ESP32 is powered on and connected to Wi-Fi, the moisture and temperature dials should update automatically every few seconds.
+3. Test the **OCR Pipeline**: Click "Upload Soil Report", select an image of a soil health card, and wait 1–2 seconds. You should see the extracted NPK numbers populate on the screen, followed by the AI's final crop and fertilizer recommendation.
+
+You are now fully up and running! Let me know if you hit any bugs or environment path errors while installing Tesseract or the Python packages.
+
 ## 🔬 System Architecture
 The architecture is logically partitioned into four distinct layers:
 1. **Perception:** ESP32 hardware and Open-Meteo virtual sensors.
